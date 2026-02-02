@@ -1,7 +1,7 @@
 
   import { useState } from 'react'
 
-// Statistics component (OUTSIDE App)
+// Statistics component
 const Statistics = ({ good, neutral, bad }) => {
   const all = good + neutral + bad
 
