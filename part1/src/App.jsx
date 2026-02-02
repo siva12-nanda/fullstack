@@ -2,18 +2,17 @@
   import { useState } from 'react'
 
 // Button component
-const Button = ({ text, onClick }) => {
-  return <button onClick={onClick}>{text}</button>
-}
+const Button = ({ text, onClick }) => (
+  <button onClick={onClick}>{text}</button>
+)
 
-// StatisticLine component
-const StatisticLine = ({ text, value }) => {
-  return (
-    <p>
-      {text} {value}
-    </p>
-  )
-}
+// StatisticLine as a table row
+const StatisticLine = ({ text, value }) => (
+  <tr>
+    <td>{text}</td>
+    <td>{value}</td>
+  </tr>
+)
 
 // Statistics component
 const Statistics = ({ good, neutral, bad }) => {
@@ -27,14 +26,16 @@ const Statistics = ({ good, neutral, bad }) => {
   const positive = (good / all) * 100
 
   return (
-    <div>
-      <StatisticLine text="good" value={good} />
-      <StatisticLine text="neutral" value={neutral} />
-      <StatisticLine text="bad" value={bad} />
-      <StatisticLine text="all" value={all} />
-      <StatisticLine text="average" value={average} />
-      <StatisticLine text="positive" value={positive + ' %'} />
-    </div>
+    <table>
+      <tbody>
+        <StatisticLine text="good" value={good} />
+        <StatisticLine text="neutral" value={neutral} />
+        <StatisticLine text="bad" value={bad} />
+        <StatisticLine text="all" value={all} />
+        <StatisticLine text="average" value={average} />
+        <StatisticLine text="positive" value={positive + ' %'} />
+      </tbody>
+    </table>
   )
 }
 
