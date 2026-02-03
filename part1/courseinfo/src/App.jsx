@@ -1,24 +1,18 @@
 // App.jsx
-const Header = ({ course }) => {
-  return <h1>{course}</h1>
-}
 
-const Content = ({ parts }) => {
-  return (
-    <div>
-      {parts.map((part, index) => (
-        <p key={index}>
-          {part.name} {part.exercises}
-        </p>
-      ))}
-    </div>
-  )
-}
+const Header = ({ course }) => <h1>{course}</h1>
 
-const Total = ({ parts }) => {
-  const total = parts.reduce((sum, part) => sum + part.exercises, 0)
-  return <p>Number of exercises {total}</p>
-}
+const Content = ({ parts }) => (
+  <div>
+    <p>{parts[0].name} {parts[0].exercises}</p>
+    <p>{parts[1].name} {parts[1].exercises}</p>
+    <p>{parts[2].name} {parts[2].exercises}</p>
+  </div>
+)
+
+const Total = ({ parts }) => (
+  <p>Number of exercises {parts[0].exercises + parts[1].exercises + parts[2].exercises}</p>
+)
 
 const App = () => {
   const course = 'Half Stack application development'
