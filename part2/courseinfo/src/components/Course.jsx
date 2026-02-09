@@ -2,13 +2,19 @@ const Header = ({ name }) => {
   return <h2>{name}</h2>
 }
 
+const Part = ({ part }) => {
+  return (
+    <p>
+      {part.name} {part.exercises}
+    </p>
+  )
+}
+
 const Content = ({ parts }) => {
   return (
     <div>
       {parts.map(part => (
-        <p key={part.id}>
-          {part.name} {part.exercises}
-        </p>
+        <Part key={part.id} part={part} />
       ))}
     </div>
   )
