@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import personsService from './services/persons';
-import Person from './components/Person';
+import Person from './components/Person.jsx';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -9,9 +9,9 @@ const App = () => {
 
   // Fetch initial data
   useEffect(() => {
-    personsService.getAll().then(initialPersons => {
-      setPersons(initialPersons);
-    });
+    personsService.getAll()
+      .then(initialPersons => setPersons(initialPersons))
+      .catch(error => console.error('Fetch failed', error));
   }, []);
 
   // Add or update person
@@ -20,7 +20,6 @@ const App = () => {
     const existingPerson = persons.find(p => p.name === newName);
 
     if (existingPerson) {
-      // Update number if user confirms
       if (window.confirm(`${newName} is already added. Replace the old number?`)) {
         const updatedPerson = { ...existingPerson, number: newNumber };
         personsService.update(existingPerson.id, updatedPerson)
@@ -32,7 +31,6 @@ const App = () => {
           .catch(error => console.error('Update failed', error));
       }
     } else {
-      // Add new person
       const newPerson = { name: newName, number: newNumber };
       personsService.create(newPerson)
         .then(returnedPerson => {
@@ -48,9 +46,7 @@ const App = () => {
   const handleDelete = (id, name) => {
     if (window.confirm(`Delete ${name}?`)) {
       personsService.remove(id)
-        .then(() => {
-          setPersons(persons.filter(p => p.id !== id));
-        })
+        .then(() => setPersons(persons.filter(p => p.id !== id)))
         .catch(error => console.error('Delete failed', error));
     }
   };
@@ -67,6 +63,7 @@ const App = () => {
         </div>
         <button type="submit">Add</button>
       </form>
+
       <h3>Numbers</h3>
       {persons.map(person => (
         <Person key={person.id} person={person} handleDelete={handleDelete} />
