@@ -1,109 +1,120 @@
-import React, { useState, useEffect } from 'react';
-import personsService from './services/persons';
-import Person from './components/Person.jsx';
+import { useState, useEffect } from 'react'
+import personService from './services/persons'
+import Notification from './components/Notification'
 
 const App = () => {
-  const [persons, setPersons] = useState([]);
-  const [newName, setNewName] = useState('');
-  const [newNumber, setNewNumber] = useState('');
-  const [notification, setNotification] = useState(null);
+  const [persons, setPersons] = useState([])
+  const [newName, setNewName] = useState('')
+  const [newNumber, setNewNumber] = useState('')
+  const [message, setMessage] = useState(null)
+  const [messageType, setMessageType] = useState(null)
 
-  // Fetch initial data from backend
   useEffect(() => {
-    personsService.getAll()
-      .then(initialPersons => setPersons(initialPersons))
-      .catch(error => console.error('Fetch failed', error));
-  }, []);
+    personService.getAll().then(response => {
+      setPersons(response.data)
+    })
+  }, [])
 
-  // Add or update person
-  const handleAddPerson = (event) => {
-    event.preventDefault();
-    const existingPerson = persons.find(p => p.name === newName);
+  const showMessage = (text, type) => {
+    setMessage(text)
+    setMessageType(type)
+    setTimeout(() => {
+      setMessage(null)
+      setMessageType(null)
+    }, 3000)
+  }
 
-    if (existingPerson) {
-      if (window.confirm(`${newName} is already added. Replace the old number?`)) {
-        const updatedPerson = { ...existingPerson, number: newNumber };
-        personsService.update(existingPerson.id, updatedPerson)
-          .then(returnedPerson => {
-            setPersons(persons.map(p => p.id !== existingPerson.id ? p : returnedPerson));
-            setNewName('');
-            setNewNumber('');
-            setNotification(`Updated ${returnedPerson.name}'s number`);
-            setTimeout(() => setNotification(null), 5000);
-          })
-          .catch(error => {
-            console.error('Update failed', error);
-            setNotification(`Failed to update ${existingPerson.name}`);
-            setTimeout(() => setNotification(null), 5000);
-          });
-      }
-    } else {
-      const newPerson = { name: newName, number: newNumber };
-      personsService.create(newPerson)
-        .then(returnedPerson => {
-          setPersons(persons.concat(returnedPerson));
-          setNewName('');
-          setNewNumber('');
-          setNotification(`Added ${returnedPerson.name}`);
-          setTimeout(() => setNotification(null), 5000);
+  const addPerson = (event) => {
+    event.preventDefault()
+
+    const existing = persons.find(p => p.name === newName)
+
+    if (existing) {
+      const updatedPerson = { ...existing, number: newNumber }
+
+      personService
+        .update(existing.id, updatedPerson)
+        .then(response => {
+          setPersons(persons.map(p =>
+            p.id !== existing.id ? p : response.data
+          ))
+          showMessage(`Updated ${existing.name}`, 'success')
         })
         .catch(error => {
-          console.error('Creation failed', error);
-          setNotification(`Failed to add ${newPerson.name}`);
-          setTimeout(() => setNotification(null), 5000);
-        });
-    }
-  };
+          showMessage(
+            `Information of ${existing.name} has already been removed from server`,
+            'error'
+          )
+          setPersons(persons.filter(p => p.id !== existing.id))
+        })
 
-  // Delete person
-  const handleDelete = (id, name) => {
-    if (window.confirm(`Delete ${name}?`)) {
-      personsService.remove(id)
-        .then(() => setPersons(persons.filter(p => p.id !== id)))
-        .catch(error => {
-          console.error('Delete failed', error);
-          setNotification(`Failed to delete ${name}`);
-          setTimeout(() => setNotification(null), 5000);
-        });
+      return
     }
-  };
+
+    const personObject = {
+      name: newName,
+      number: newNumber
+    }
+
+    personService
+      .create(personObject)
+      .then(response => {
+        setPersons(persons.concat(response.data))
+        showMessage(`Added ${newName}`, 'success')
+      })
+
+    setNewName('')
+    setNewNumber('')
+  }
+
+  const deletePerson = (id, name) => {
+    if (window.confirm(`Delete ${name}?`)) {
+      personService
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter(p => p.id !== id))
+          showMessage(`Deleted ${name}`, 'success')
+        })
+    }
+  }
 
   return (
     <div>
       <h2>Phonebook</h2>
 
-      {/* Notification */}
-      {notification && (
-        <div style={{
-          color: 'green',
-          background: 'lightgrey',
-          fontSize: 20,
-          borderStyle: 'solid',
-          borderRadius: 5,
-          padding: 10,
-          marginBottom: 10
-        }}>
-          {notification}
-        </div>
-      )}
+      <Notification message={message} type={messageType} />
 
-      {/* Form to add / update */}
-      <form onSubmit={handleAddPerson}>
+      <form onSubmit={addPerson}>
         <div>
-          Name: <input value={newName} onChange={e => setNewName(e.target.value)} />
+          name:
+          <input
+            value={newName}
+            onChange={e => setNewName(e.target.value)}
+          />
         </div>
         <div>
-          Number: <input value={newNumber} onChange={e => setNewNumber(e.target.value)} />
+          number:
+          <input
+            value={newNumber}
+            onChange={e => setNewNumber(e.target.value)}
+          />
         </div>
-        <button type="submit">Add</button>
+        <button type="submit">add</button>
       </form>
 
-      <h3>Numbers</h3>
-      {persons.map(person => (
-        <Person key={person.id} person={person} handleDelete={handleDelete} />
-      ))}
+      <h2>Numbers</h2>
+      <ul>
+        {persons.map(p =>
+          <li key={p.id}>
+            {p.name} {p.number}
+            <button onClick={() => deletePerson(p.id, p.name)}>
+              delete
+            </button>
+          </li>
+        )}
+      </ul>
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App
