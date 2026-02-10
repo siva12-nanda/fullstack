@@ -7,17 +7,20 @@ const App = () => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
 
+  // Fetch initial data
   useEffect(() => {
     personsService.getAll().then(initialPersons => {
       setPersons(initialPersons);
     });
   }, []);
 
+  // Add or update person
   const handleAddPerson = (event) => {
     event.preventDefault();
     const existingPerson = persons.find(p => p.name === newName);
 
     if (existingPerson) {
+      // Update number if user confirms
       if (window.confirm(`${newName} is already added. Replace the old number?`)) {
         const updatedPerson = { ...existingPerson, number: newNumber };
         personsService.update(existingPerson.id, updatedPerson)
@@ -29,6 +32,7 @@ const App = () => {
           .catch(error => console.error('Update failed', error));
       }
     } else {
+      // Add new person
       const newPerson = { name: newName, number: newNumber };
       personsService.create(newPerson)
         .then(returnedPerson => {
@@ -40,6 +44,7 @@ const App = () => {
     }
   };
 
+  // Delete person
   const handleDelete = (id, name) => {
     if (window.confirm(`Delete ${name}?`)) {
       personsService.remove(id)
