@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+
+  import { useState, useEffect } from 'react'
 import personService from './services/persons'
 import Notification from './components/Notification'
 
@@ -6,23 +7,15 @@ const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
-  const [message, setMessage] = useState(null)
-  const [messageType, setMessageType] = useState(null)
+  const [filter, setFilter] = useState('')
+  const [notification, setNotification] = useState(null)
+  const [notificationType, setNotificationType] = useState(null)
 
   useEffect(() => {
-    personService.getAll().then(response => {
-      setPersons(response.data)
+    personService.getAll().then(data => {
+      setPersons(data)
     })
   }, [])
-
-  const showMessage = (text, type) => {
-    setMessage(text)
-    setMessageType(type)
-    setTimeout(() => {
-      setMessage(null)
-      setMessageType(null)
-    }, 3000)
-  }
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -30,89 +23,117 @@ const App = () => {
     const existing = persons.find(p => p.name === newName)
 
     if (existing) {
-      const updatedPerson = { ...existing, number: newNumber }
+      if (window.confirm(`${newName} already exists. Replace number?`)) {
+        const updatedPerson = { ...existing, number: newNumber }
 
-      personService
-        .update(existing.id, updatedPerson)
-        .then(response => {
-          setPersons(persons.map(p =>
-            p.id !== existing.id ? p : response.data
-          ))
-          showMessage(`Updated ${existing.name}`, 'success')
-        })
-        .catch(error => {
-          showMessage(
-            `Information of ${existing.name} has already been removed from server`,
-            'error'
-          )
-          setPersons(persons.filter(p => p.id !== existing.id))
-        })
-
+        personService
+          .update(existing.id, updatedPerson)
+          .then(returned => {
+            setPersons(
+              persons.map(p =>
+                p.id !== existing.id ? p : returned
+              )
+            )
+            showMessage(`Updated ${returned.name}`, 'success')
+          })
+          .catch(() => {
+            showMessage(
+              `Information of ${existing.name} has already been removed from server`,
+              'error'
+            )
+            setPersons(persons.filter(p => p.id !== existing.id))
+          })
+      }
       return
     }
 
-    const personObject = {
-      name: newName,
-      number: newNumber
-    }
+    const newPerson = { name: newName, number: newNumber }
 
-    personService
-      .create(personObject)
-      .then(response => {
-        setPersons(persons.concat(response.data))
-        showMessage(`Added ${newName}`, 'success')
-      })
+    personService.create(newPerson).then(returned => {
+      setPersons(persons.concat(returned))
+      showMessage(`Added ${returned.name}`, 'success')
+    })
 
     setNewName('')
     setNewNumber('')
   }
 
-  const deletePerson = (id, name) => {
-    if (window.confirm(`Delete ${name}?`)) {
+  const deletePerson = (id) => {
+    const person = persons.find(p => p.id === id)
+
+    if (window.confirm(`Delete ${person.name}?`)) {
       personService
         .remove(id)
         .then(() => {
           setPersons(persons.filter(p => p.id !== id))
-          showMessage(`Deleted ${name}`, 'success')
+          showMessage(`Deleted ${person.name}`, 'success')
+        })
+        .catch(() => {
+          showMessage(
+            `Information of ${person.name} has already been removed from server`,
+            'error'
+          )
+          setPersons(persons.filter(p => p.id !== id))
         })
     }
   }
+
+  const showMessage = (text, type) => {
+    setNotification(text)
+    setNotificationType(type)
+    setTimeout(() => setNotification(null), 5000)
+  }
+
+  const personsToShow = persons.filter(person =>
+    person.name.toLowerCase().includes(filter.toLowerCase())
+  )
 
   return (
     <div>
       <h2>Phonebook</h2>
 
-      <Notification message={message} type={messageType} />
+      <Notification message={notification} type={notificationType} />
+
+      <div>
+        filter shown with{' '}
+        <input
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+        />
+      </div>
+
+      <h3>Add a new</h3>
 
       <form onSubmit={addPerson}>
         <div>
-          name:
+          name:{' '}
           <input
             value={newName}
-            onChange={e => setNewName(e.target.value)}
+            onChange={(e) => setNewName(e.target.value)}
           />
         </div>
+
         <div>
-          number:
+          number:{' '}
           <input
             value={newNumber}
-            onChange={e => setNewNumber(e.target.value)}
+            onChange={(e) => setNewNumber(e.target.value)}
           />
         </div>
+
         <button type="submit">add</button>
       </form>
 
-      <h2>Numbers</h2>
-      <ul>
-        {persons.map(p =>
-          <li key={p.id}>
-            {p.name} {p.number}
-            <button onClick={() => deletePerson(p.id, p.name)}>
-              delete
-            </button>
-          </li>
-        )}
-      </ul>
+      <h3>Numbers</h3>
+
+      {personsToShow.map(person => (
+        <div key={person.id}>
+          {person.name} {person.number}
+          <button onClick={() => deletePerson(person.id)}>
+            delete
+          </button>
+        </div>
+      ))}
     </div>
   )
 }
