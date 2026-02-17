@@ -1,34 +1,76 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react'
+import countryService from './services/countries'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [countries, setCountries] = useState([])
+  const [search, setSearch] = useState('')
+  const [selectedCountry, setSelectedCountry] = useState(null)
+
+  useEffect(() => {
+    countryService.getAll()
+      .then(data => setCountries(data))
+  }, [])
+
+  const handleChange = (event) => {
+    setSearch(event.target.value)
+    setSelectedCountry(null)
+  }
+
+  const showCountry = (country) => {
+    setSelectedCountry(country)
+  }
+
+  const filtered = countries.filter(country =>
+    country.name.common
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  )
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div>
+      <h2>Find Countries</h2>
+
+      <input value={search} onChange={handleChange} />
+
+      {selectedCountry ? (
+        <CountryDetails country={selectedCountry} />
+      ) : filtered.length > 10 ? (
+        <p>Too many matches, specify another filter</p>
+      ) : filtered.length > 1 ? (
+        filtered.map(country => (
+          <div key={country.name.common}>
+            {country.name.common}
+            <button onClick={() => showCountry(country)}>
+              show
+            </button>
+          </div>
+        ))
+      ) : filtered.length === 1 ? (
+        <CountryDetails country={filtered[0]} />
+      ) : (
+        <p>No matches</p>
+      )}
+    </div>
+  )
+}
+
+const CountryDetails = ({ country }) => {
+  return (
+    <div>
+      <h2>{country.name.common}</h2>
+
+      <p><strong>Capital:</strong> {country.capital?.[0]}</p>
+      <p><strong>Area:</strong> {country.area}</p>
+
+      <h3>Languages:</h3>
+      <ul>
+        {Object.values(country.languages || {}).map(lang => (
+          <li key={lang}>{lang}</li>
+        ))}
+      </ul>
+
+      <img src={country.flags.png} alt="flag" width="150" />
+    </div>
   )
 }
 
