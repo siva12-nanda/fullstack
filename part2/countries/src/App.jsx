@@ -37,19 +37,27 @@ function App() {
       ) : filtered.length > 10 ? (
         <p>Too many matches, specify another filter</p>
       ) : filtered.length > 1 ? (
-        filtered.map(country => (
-          <div key={country.name.common}>
-            {country.name.common}
-            <button onClick={() => showCountry(country)}>
-              show
-            </button>
-          </div>
-        ))
+        <CountryList countries={filtered} showCountry={showCountry} />
       ) : filtered.length === 1 ? (
         <CountryDetails country={filtered[0]} />
       ) : (
         <p>No matches</p>
       )}
+    </div>
+  )
+}
+
+const CountryList = ({ countries, showCountry }) => {
+  return (
+    <div>
+      {countries.map(country => (
+        <div key={country.name.common}>
+          {country.name.common}
+          <button onClick={() => showCountry(country)}>
+            show
+          </button>
+        </div>
+      ))}
     </div>
   )
 }
@@ -69,7 +77,11 @@ const CountryDetails = ({ country }) => {
         ))}
       </ul>
 
-      <img src={country.flags.png} alt="flag" width="150" />
+      <img
+        src={country.flags.png}
+        alt="flag"
+        width="150"
+      />
     </div>
   )
 }
