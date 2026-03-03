@@ -5,20 +5,20 @@ console.log("THIS FILE IS RUNNING")
 const express = require('express')
 const app = express()
 
-// IMPORTANT: must be let (because we modify it in delete)
+app.use(express.json())
+
 let persons = [
   { id: 1, name: "Arto Hellas", number: "040-123456" },
-  { id: 2, name: "Ada Lovelace", number: "39-44-5323523" },
   { id: 3, name: "Dan Abramov", number: "12-43-234345" },
   { id: 4, name: "Mary Poppendieck", number: "39-23-6423122" }
 ]
 
-// 3.1 - Get all persons
+// 3.1
 app.get('/api/persons', (req, res) => {
   res.json(persons)
 })
 
-// 3.2 - Info page
+// 3.2
 app.get('/info', (req, res) => {
   const peopleCount = persons.length
   const date = new Date()
@@ -29,7 +29,7 @@ app.get('/info', (req, res) => {
   )
 })
 
-// 3.3 - Get single person by id
+// 3.3
 app.get('/api/persons/:id', (req, res) => {
   const id = Number(req.params.id)
   const person = persons.find(p => p.id === id)
@@ -41,13 +41,32 @@ app.get('/api/persons/:id', (req, res) => {
   }
 })
 
-// 3.4 - Delete person
+// 3.4
 app.delete('/api/persons/:id', (req, res) => {
   const id = Number(req.params.id)
-
   persons = persons.filter(person => person.id !== id)
-
   res.status(204).end()
+})
+
+// 3.5
+app.post('/api/persons', (req, res) => {
+  const body = req.body
+
+  if (!body.name || !body.number) {
+    return res.status(400).json({
+      error: 'name or number missing'
+    })
+  }
+
+  const newPerson = {
+    id: Math.floor(Math.random() * 10000),
+    name: body.name,
+    number: body.number
+  }
+
+  persons = persons.concat(newPerson)
+
+  res.json(newPerson)
 })
 
 const PORT = 3001
