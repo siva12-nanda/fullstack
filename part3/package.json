@@ -1,16 +1,15 @@
 {
   "name": "part3",
   "version": "1.0.0",
-  "description": "",
+  "description": "Phonebook backend for fullstack project",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "node --watch index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "author": "Your Name",
+  "license": "MIT",
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.1.0"
   }
 }
