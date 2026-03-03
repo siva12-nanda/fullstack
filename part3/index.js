@@ -1,3 +1,7 @@
+
+
+console.log("THIS FILE IS RUNNING")
+
 const express = require('express')
 const app = express()
 
@@ -8,10 +12,23 @@ const persons = [
   { id: 4, name: "Mary Poppendieck", number: "39-23-6423122" }
 ]
 
-app.get('/api/persons', (request, response) => {
-  response.json(persons)
+// 3.1
+app.get('/api/persons', (req, res) => {
+  res.json(persons)
 })
 
-app.listen(3001, () => {
-  console.log('Server running on port 3001')
+// 3.2
+app.get('/info', (req, res) => {
+  const peopleCount = persons.length
+  const date = new Date()
+
+  res.send(
+    `<p>Phonebook has info for ${peopleCount} people</p>
+     <p>${date}</p>`
+  )
+})
+
+const PORT = 3001
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
 })
