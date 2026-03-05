@@ -1,16 +1,13 @@
 {
-  "name": "part3",
+  "name": "phonebook-backend",
   "version": "1.0.0",
-  "description": "Phonebook backend for fullstack project",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js"
   },
-  "author": "Your Name",
-  "license": "MIT",
   "dependencies": {
     "express": "^5.1.0",
-    "morgan": "^1.10.1"
+    "morgan": "^1.10.0"
   }
 }
