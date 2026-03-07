@@ -1,0 +1,37 @@
+### GET all persons
+GET http://localhost:3001/api/persons
+
+### GET single person (exists)
+GET http://localhost:3001/api/persons/2
+
+### GET single person (not exists)
+GET http://localhost:3001/api/persons/999
+
+### POST new person (valid)
+POST http://localhost:3001/api/persons
+content-type: application/json
+
+{
+  "name": "Siva Nanda",
+  "number": "9999999999"
+}
+
+### POST missing name (should fail)
+POST http://localhost:3001/api/persons
+content-type: application/json
+
+{
+  "number": "123456789"
+}
+
+### POST duplicate name (should fail)
+POST http://localhost:3001/api/persons
+content-type: application/json
+
+{
+  "name": "Ada Lovelace",
+  "number": "111222333"
+}
+
+### DELETE person
+DELETE http://localhost:3001/api/persons/3
