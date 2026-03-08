@@ -68,6 +68,23 @@ response.status(204).end()
 .catch(error => next(error))
 })
 
+
+app.put('/api/persons/:id', (request, response, next) => {
+  const { name, number } = request.body
+
+  const person = { name, number }
+
+  Person.findByIdAndUpdate(
+    request.params.id,
+    person,
+    { new: true, runValidators: true, context: 'query' }
+  )
+    .then(updatedPerson => {
+      response.json(updatedPerson)
+    })
+    .catch(error => next(error))
+})
+
 // INFO route
 app.get('/info', (request, response) => {
 Person.countDocuments({}).then(count => {
