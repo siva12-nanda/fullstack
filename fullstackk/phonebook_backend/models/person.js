@@ -3,11 +3,11 @@ const mongoose = require('mongoose')
 mongoose.set('strictQuery', false)
 
 const url = process.env.MONGODB_URI
-console.log('connecting to', url)
+console.log('Connecting to', url)
 
 mongoose.connect(url, { family: 4 })
-  .then(() => console.log('connected to MongoDB'))
-  .catch(error => console.log('error connecting to MongoDB:', error.message))
+  .then(() => console.log('MongoDB connected!'))
+  .catch(err => console.log('Connection error:', err.message))
 
 const personSchema = new mongoose.Schema({
   name: String,
