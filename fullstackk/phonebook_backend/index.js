@@ -23,14 +23,19 @@ app.get('/api/persons', (req, res) => {
   Person.find({}).then(persons => res.json(persons))
 })
 
-// GET by id
+// GET person by id
 app.get('/api/persons/:id', (req, res, next) => {
+
   Person.findById(req.params.id)
     .then(person => {
-      if (person) res.json(person)
-      else res.status(404).end()
+      if (person) {
+        res.json(person)
+      } else {
+        res.status(404).end()
+      }
     })
     .catch(error => next(error))
+
 })
 
 // ADD person
@@ -56,7 +61,7 @@ app.delete('/api/persons/:id', (req, res, next) => {
 
 })
 
-// UPDATE (3.21)
+// UPDATE
 app.put('/api/persons/:id', (req, res, next) => {
 
   const { name, number } = req.body
@@ -75,7 +80,7 @@ app.put('/api/persons/:id', (req, res, next) => {
 
 })
 
-// ERROR HANDLER
+// ⭐ Error handler (Exercise 3.22)
 app.use((error, req, res, next) => {
 
   if (error.name === 'CastError') {

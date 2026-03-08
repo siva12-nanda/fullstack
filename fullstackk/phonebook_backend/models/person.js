@@ -25,8 +25,8 @@ const personSchema = new mongoose.Schema({
 personSchema.plugin(uniqueValidator)
 
 personSchema.set('toJSON', {
-  transform: (document, returnedObject) => {
-    returnedObject.id = document._id.toString()
+  transform: (doc, returnedObject) => {
+    returnedObject.id = doc._id.toString()
     delete returnedObject._id
     delete returnedObject.__v
   }
